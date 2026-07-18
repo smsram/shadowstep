@@ -46,14 +46,14 @@ By utilizing high-speed serverless inference providers (**Groq** and **Cerebras*
 ### Prerequisites
 * A Chromium-based browser (Microsoft Edge, Google Chrome, Brave, Opera).
 * **Node.js** (v18 or higher) and **npm** installed on your machine.
-* A valid developer API Key from [Groq Console](https://console.groq.com/) and/or [Cerebras Dashboard](https://dashboard.cerebras.ai/).
+* A valid developer API Key from [Groq Console](https://console.groq.com/) and/or [Cerebras](https://cerebras.ai/).
 
 ### 1. Compilation from Source Code
 Clone the repository and compile the extension directory bundle locally using your terminal:
 
 ```bash
 # Clone the repository
-git clone [https://github.com/smsram/shadowstep.git](https://github.com/smsram/shadowstep.git)
+git clone https://github.com/smsram/shadowstep.git
 cd shadowstep
 
 # Install internal infrastructure dependencies
