@@ -1,14 +1,15 @@
 /**
  * @file content.ts
- * @description Injected content script that mounts the ShadowStep UI and acts as the DOM Scanner & Action Engine.
+ * @description Injected content script that mounts the ShadowStep UI inside an isolated Shadow DOM
+ * to prevent host website styles from bleeding into the companion interface.
  * 
  * @dependencies
  * - Preact (h, render) for UI mounting.
  * - ControlPanel component for the main interface.
- * - Chrome Runtime Messaging for receiving 'SCAN_VIEWPORT', 'EVOKE_CLICK', and 'INJECT_STATE' commands.
+ * - Chrome Runtime Messaging for receiving viewport analysis and programmatic interaction dispatches.
  * 
  * @state
- * - interactableMap: Maps numeric IDs to HTMLElement nodes for precise interaction.
+ * - interactableMap: Maps numeric IDs to HTMLElement nodes for precise DOM interaction loops.
  */
 import { h, render } from 'preact';
 import { ControlPanel } from '../components/ControlPanel';
@@ -16,15 +17,33 @@ import { ControlPanel } from '../components/ControlPanel';
 const injectUI = () => {
   if (document.getElementById('shadowstep-root')) return;
   
-  const rootContainer = document.createElement('div');
-  rootContainer.id = 'shadowstep-root';
+  // 1. Create the host container element on the host document
+  const hostContainer = document.createElement('div');
+  hostContainer.id = 'shadowstep-root';
   
-  rootContainer.style.position = 'fixed';
-  rootContainer.style.zIndex = '2147483647';
+  hostContainer.style.position = 'fixed';
+  hostContainer.style.zIndex = '2147483647';
+  hostContainer.style.top = '0';
+  hostContainer.style.right = '0';
   
-  document.documentElement.appendChild(rootContainer);
+  document.documentElement.appendChild(hostContainer);
   
-  render(h(ControlPanel, null), rootContainer);
+  // 2. Attach a closed/open Shadow Root to fully isolate the styles
+  const shadowRoot = hostContainer.attachShadow({ mode: 'open' });
+  
+  // 3. Create an internal wrapper inside the shadow boundary for mounting Preact
+  const innerUiWrapper = document.createElement('div');
+  innerUiWrapper.id = 'shadowstep-isolated-container';
+  
+  // Apply foundational isolation baselines directly inside the shadow container
+  innerUiWrapper.style.all = 'initial'; // Reset any inheritances completely
+  innerUiWrapper.style.fontFamily = 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+  innerUiWrapper.style.display = 'block';
+  
+  shadowRoot.appendChild(innerUiWrapper);
+  
+  // 4. Render the companion layout inside the isolated shadow root container
+  render(h(ControlPanel, null), innerUiWrapper);
 };
 
 if (document.readyState === 'loading') {
