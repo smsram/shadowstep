@@ -20,8 +20,10 @@ ShadowStep is designed to assist power users, researchers, and developers who ne
 ## Feature Highlights
 
 * **Dual Engine Mode Matrix:** Execute tasks smoothly with our hybrid approach—use *Chat Context Mode* for reading and reasoning over page data, or switch to *Automation Task Matrix Execution* for direct DOM control and dynamic interaction.
+* **Full-Screen Workspace Continuity:** Both Chat and Action modes are fully operational within native full-screen viewports. There is absolutely no need to toggle out of full screen or switch apps to interact with the AI; you engage with the interface directly within the browser view.
+* **Copy/Paste Block Bypass Engine:** Seamlessly read, parse, and interact with text or input field data even on hostile websites that intentionally disable standard right-click copy/paste behaviors. The internal layout scanner pulls text at the DOM layer directly.
 * **Precision Extraction Canvas:** Precisely capture data with visual target selectors. Use bounding boxes or free-form lasso clips to explicitly define the exact spatial boundaries for the LLM to process.
-* **Host-Contamination Shield:** Features an advanced isolated CSS Reset Shield layer, guaranteeing that complex host-page styles never pollute, break, or misalign the extension's panels and controls.
+* **Host-Contamination Shield:** Features an advanced isolated CSS Reset Shield layer (built using a secure Shadow DOM boundary), guaranteeing that complex host-page styles never pollute, break, or misalign the extension's panels and controls.
 * **LRU Resilient Task Logs:** A robust local session history manager designed to safely hold up to 100 threads in an LRU (Least Recently Used) cache. Includes manual management tools for renaming, exporting to `.txt`, targeted deletion, or full history wipe.
 
 ## Directory Mapping Layout
@@ -30,6 +32,7 @@ The ShadowStep source code is functionally split for clarity and performance:
 
 * `src/components/` — Houses the React/Preact UI interfaces. This includes the floating menus, control hubs, and our highly isolated spatial selection canvases.
 * `src/core/` — Contains the background infrastructure. Here you'll find the state engines, robust history managers, and DOM action dispatchers that drive the automation mechanics.
+* `src/content/` — Handles runtime script injections, Shadow DOM layer attachments, viewport text parsing, and programmatic click/input event execution loops.
 
 ## Local Setup & Build Pipelines
 
@@ -41,6 +44,7 @@ npm install
 
 # 2. Run the production bundling script for unpackaged extension compilation
 npm run build
+
 ```
 
 Once built, you can load the `/dist` output directory into your browser's extension developer mode.
