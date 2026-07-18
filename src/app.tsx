@@ -1,3 +1,17 @@
+/**
+ * @file app.tsx
+ * @description Renders the ShadowStep Control Hub for configuring API routing pipelines and user identity.
+ * 
+ * @dependencies
+ * - Preact Hooks (useState, useEffect) for state and UI lifecycles.
+ * - Chrome Extension Storage (chrome.storage.local) for persisting API keys and user preferences.
+ * 
+ * @interfaces
+ * - StorageResult: Defines the shape of the locally persisted configuration data.
+ * 
+ * @state
+ * - nameInput, groqInput, cerebrasInput, saveStatus, statusMessage, isConfigured, showGroq, showCerebras
+ */
 import { useState, useEffect } from 'preact/hooks';
 
 interface StorageResult {
@@ -15,7 +29,6 @@ export function App() {
   const [statusMessage, setStatusMessage] = useState('');
   const [isConfigured, setIsConfigured] = useState(false);
 
-  // 🛑 NEW: Visibility toggles for API keys
   const [showGroq, setShowGroq] = useState(false);
   const [showCerebras, setShowCerebras] = useState(false);
 
@@ -101,7 +114,7 @@ export function App() {
         boxSizing: 'border-box'
       }}>
         
-        {/* BRAND IDENTITY */}
+        
         <div style={{ marginBottom: '32px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <img src="./icon.png" alt="ShadowStep" style={{ width: '48px', height: '48px', marginBottom: '16px', filter: 'drop-shadow(0 0 12px rgba(0,255,194,0.4))' }} />
           <h1 style={{ fontSize: '24px', fontWeight: 600, margin: '0 0 6px 0', letterSpacing: '-0.5px' }}>
@@ -112,10 +125,10 @@ export function App() {
           </p>
         </div>
 
-        {/* INPUT CONTAINER CLUSTERS */}
+        
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '32px' }}>
           
-          {/* OPERATOR NAME */}
+          
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
               <label style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', letterSpacing: '0.8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -144,7 +157,7 @@ export function App() {
 
           <div style={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.06)', margin: '4px 0' }} />
 
-          {/* GROQ KEYS */}
+          
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
               <label style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', letterSpacing: '0.8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -186,7 +199,7 @@ export function App() {
             </div>
           </div>
 
-          {/* CEREBRAS KEYS */}
+          
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
               <label style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', letterSpacing: '0.8px', display: 'flex', alignItems: 'center', gap: '6px' }}>

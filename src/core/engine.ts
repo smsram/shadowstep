@@ -1,4 +1,16 @@
-// src/core/engine.ts
+/**
+ * @file engine.ts
+ * @description Core ShadowEngine that manages state, LLM context windows, and API routing.
+ * Provides the main execution loop for handling both Chat and Action modes.
+ * 
+ * @dependencies
+ * - NodeCluster models for Groq/Cerebras endpoints.
+ * - AgentTools and ToolExecutors from tools.ts.
+ * 
+ * @interfaces
+ * - NodeCluster: Represents an AI provider endpoint.
+ * - ShadowEngine: The class orchestrating prompt engineering, API calls, tool dispatches, and memory compression.
+ */
 import { AgentTools, ToolExecutors } from './tools';
 
 export interface NodeCluster {
@@ -31,7 +43,6 @@ export class ShadowEngine {
 
     const sysPrompt = this.getSystemPrompt();
 
-    // Preserve memory across API key rotations and mode switches
     if (existingHistory && existingHistory.length > 0) {
       this.messageHistory = [...existingHistory];
       this.messageHistory[0] = { role: "system", content: sysPrompt };
@@ -63,7 +74,6 @@ CRITICAL BEHAVIOR MATRIX:
   }
 
   private pruneContextMemory() {
-    // 🛑 Reduced from 40 to 24 to guarantee it stays under Cerebras token limits on massive chains
     const MAX_MEMORY = 24; 
     if (this.messageHistory.length > MAX_MEMORY) {
       const systemPrompt = this.messageHistory[0];
@@ -72,7 +82,6 @@ CRITICAL BEHAVIOR MATRIX:
       this.messageHistory = [systemPrompt, initialUserPrompt, ...recentHistory];
     }
 
-    // Advanced Memory Compressor
     let scanCount = 0;
     for (let i = this.messageHistory.length - 1; i >= 0; i--) {
       const msg = this.messageHistory[i];
@@ -118,16 +127,15 @@ CRITICAL BEHAVIOR MATRIX:
     let isProcessing = true;
     let executionCycles = 0;
     
-    // 🛑 CRITICAL FIX: Dynamically scale cycle limits based on mode
     const isLongHorizon = userPrompt.includes('LONG-HORIZON');
     const MAX_CYCLES = isLongHorizon ? 100 : 15; 
     
     let hasSentTokens = false;
 
-    // 🛑 CRITICAL FIX: Strictly isolate tools based on the active mode
+    // Fixed ternary operator structure here
     const activeTools = this.mode === 'chat' 
-      ? AgentTools.filter(t => t.function.name === 'read_page_content') // Chat only gets reading
-      : AgentTools.filter(t => t.function.name !== 'read_page_content'); // Action gets everything EXCEPT reading
+      ? AgentTools 
+      : AgentTools.filter(t => t.function.name !== 'read_page_content');
 
     while (isProcessing && executionCycles < MAX_CYCLES) {
       if (signal?.aborted) {
@@ -228,7 +236,6 @@ CRITICAL BEHAVIOR MATRIX:
                 }
               }
             } catch {
-              // Ignore partial chunk buffers safely
             }
           }
         }
@@ -267,7 +274,6 @@ CRITICAL BEHAVIOR MATRIX:
             break; 
           }
           
-          // 🛑 CRITICAL FIX: Remind the AI to stop if it's done
           this.messageHistory.push({ 
             role: "user", 
             content: "Tool execution complete. If the objective is fully met, DO NOT call any more tools. Output your final summary text now. Otherwise, execute the next required tool." 
@@ -297,7 +303,6 @@ CRITICAL BEHAVIOR MATRIX:
       }
     }
     
-    // 🛑 NEW: Gracefully pause execution and offer a continuation if we hit the limit
     if (isProcessing && executionCycles >= MAX_CYCLES) {
       callbacks.onLog(`[WARN] Maximum cycle limits reached. Pausing execution.`);
       callbacks.onMessage("Execution paused to prevent infinite loops. If the task is incomplete, click 'Proceed with Task' below to continue.");

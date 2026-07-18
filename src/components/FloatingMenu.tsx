@@ -1,4 +1,18 @@
-// src/components/FloatingMenu.tsx
+/**
+ * @file FloatingMenu.tsx
+ * @description Renders the core floating control interface for ShadowStep.
+ * It manages the visual overlay menu, providing quick access to chat, settings, and spatial selection tools.
+ * 
+ * @dependencies
+ * - Preact Hooks (useState, useEffect) for state and UI lifecycles.
+ * - Chrome Extension Storage (chrome.storage.local) to persist snap positions.
+ *
+ * @state
+ * - isHovered, showRemoveMenu, isDragging, dragOffset, isIdleDimmed
+ * 
+ * @interfaces
+ * - FloatingMenuProps: Defines callbacks for parent engine integration.
+ */
 import { useState, useEffect } from 'preact/hooks';
 
 interface FloatingMenuProps {
@@ -9,7 +23,7 @@ interface FloatingMenuProps {
   onHidePermanent: () => void;
   onSelectBox: () => void;
   onSelectLasso: () => void;
-  setPanelSide: (side: 'left' | 'right') => void; // Keeps the update channel open
+  setPanelSide: (side: 'left' | 'right') => void;
   snapPos: string;
   setSnapPos: (snap: string) => void;
 }
@@ -164,8 +178,8 @@ export function FloatingMenu({
     flexDirection: 'column',
     gap: '4px',
     width: '180px',
-    minWidth: '180px', // Strict width
-    maxWidth: '180px', // Strict width
+    minWidth: '180px',
+    maxWidth: '180px',
     boxSizing: 'border-box',
     boxShadow: '0px 4px 15px rgba(0,0,0,0.5)',
     zIndex: 10
@@ -211,7 +225,7 @@ export function FloatingMenu({
       onMouseLeave={() => { if (!showRemoveMenu) setIsHovered(false); }}
       style={getContainerStyles()}
     >
-      {/* 🛑 RIGID CSS ISOLATION BLOCK: Forces dimensions regardless of external CSS bleed */}
+      {/* RIGID CSS ISOLATION BLOCK: Forces dimensions regardless of external CSS bleed */}
       <style>{`
         .shadowstep-shield-override * {
           box-sizing: border-box !important;

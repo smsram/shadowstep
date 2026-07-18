@@ -6,11 +6,14 @@ export default defineConfig({
   plugins: [
     crx({ manifest })
   ],
+  build: {
+    manifest: false 
+  },
   server: {
     port: 5173,
     strictPort: true,
-    hmr: {
-      host: 'localhost', // <--- This forces the WebSocket to connect correctly!
+    ws: {
+      host: 'localhost',
       port: 5173
     }
   }

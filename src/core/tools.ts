@@ -1,4 +1,13 @@
-// src/core/tools.ts
+/**
+ * @file tools.ts
+ * @description Declares and implements the tool execution functions for the ShadowEngine.
+ * Contains logic for viewport scanning, precise DOM interaction, complex editor state injection (Monaco, CodeMirror, ACE), and execution delays.
+ * 
+ * @dependencies
+ * - Native DOM APIs (TreeWalker, MutationObserver, events).
+ * - AgentTools: JSON Schema definitions passed to the LLM.
+ * - ToolExecutors: The actual execution logic mapped to the schemas.
+ */
 
 export const AgentTools = [
   {
@@ -298,7 +307,7 @@ export const ToolExecutors = {
 
           log(`[WARN] Editor API bypass failed. Using native OS-level overwrite simulation.`);
           
-          // 🛑 FIX: Wiping safely. We highlight text without brutally setting innerText=''
+          // Safeguard: Wiping safely. We highlight text without brutally setting innerText=''
           if (tagName === 'input' || tagName === 'textarea') {
               inputEl.select();
           } else if (el.isContentEditable) {
@@ -316,7 +325,7 @@ export const ToolExecutors = {
           
           try { document.execCommand('delete', false); } catch (e) {}
           
-          // ONLY clear value for standard inputs. NEVER do this on contenteditable (Gemini)
+          // Safeguard: ONLY clear value for standard inputs. NEVER do this on contenteditable (Gemini)
           if (tagName === 'input' || tagName === 'textarea') inputEl.value = '';
           
           const dt = new DataTransfer();
@@ -345,7 +354,6 @@ export const ToolExecutors = {
           el.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
           el.dispatchEvent(new Event('blur', { bubbles: true, composed: true }));
           
-          // 🛑 FIX: If AI requested to press Enter (e.g., to send a chat message)
           if (args.press_enter) {
              log(`[ACT] Triggering Enter key to submit payload...`);
              el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, bubbles: true, composed: true }));

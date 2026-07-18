@@ -1,4 +1,16 @@
-// src/components/ControlPanel.tsx
+/**
+ * @file ControlPanel.tsx
+ * @description The main sidebar UI for ShadowStep, acting as the primary orchestrator between the user, the ShadowEngine, and the DOM.
+ * 
+ * @dependencies
+ * - Preact Hooks (useState, useEffect, useRef) for complex state mapping and lifecycle management.
+ * - ShadowEngine for prompt execution and tool dispatching.
+ * - HistoryManager for session logging and caching.
+ * 
+ * @interfaces
+ * - StorageResult: Defines the shape of chrome.storage configuration data.
+ * - ChatMessage: Represents an individual message block in the chat stream.
+ */
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { ShadowEngine } from '../core/engine';
 import { FloatingMenu } from './FloatingMenu';
@@ -192,13 +204,13 @@ export function ControlPanel() {
   const [selectionMode, setSelectionMode] = useState<'none' | 'box' | 'lasso'>('none');
   const [attachedContexts, setAttachedContexts] = useState<string[]>([]);
 
-  // Cache & History States
+  
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [activeThreadId, setActiveThreadId] = useState<string>(() => Date.now().toString());
   const [showHistory, setShowHistory] = useState(false);
   
-  // History Overlay Modals
+  
   const [activeOptionsMenu, setActiveOptionsMenu] = useState<string | null>(null);
   const [editingThreadId, setEditingThreadId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
@@ -394,7 +406,7 @@ export function ControlPanel() {
     }
   };
 
-  // History Data Methods
+  
   const exportToTxt = (thread: ChatThread) => {
     let content = `ShadowStep Log: ${thread.title}\nDate: ${new Date(thread.updatedAt).toLocaleString()}\n\n`;
     thread.messages.forEach(m => { content += `[${m.role.toUpperCase()}]\n${m.text}\n\n`; });
@@ -438,7 +450,7 @@ export function ControlPanel() {
   return (
     <div className="shadowstep-panel-root" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', color: '#F5F6F7', letterSpacing: '-0.2px' }}>
       
-      {/* 🛑 IMPENETRABLE CSS SHIELD FOR CONTROL PANEL */}
+      {/* IMPENETRABLE CSS SHIELD FOR CONTROL PANEL */}
       <style>{`
         .shadowstep-panel-root * {
           box-sizing: border-box !important;
@@ -612,7 +624,7 @@ export function ControlPanel() {
         }}
       >
         
-        {/* CLASSIC 4-ICON HEADER */}
+        
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ width: '12px', height: '12px', border: '2px solid #00FFC2', borderRadius: '50%', boxSizing: 'border-box' }} />
@@ -637,13 +649,13 @@ export function ControlPanel() {
 
         {isConfigured ? (
           <>
-            {/* CONTROLS */}
+            
             <div style={{ display: 'flex', backgroundColor: 'rgba(255, 255, 255, 0.02)', borderRadius: '20px', padding: '3px', marginBottom: '16px', border: '1px solid rgba(255,255,255,0.03)', flexShrink: 0 }}>
               <button onClick={() => setMode('chat')} title="Ask questions about this tab" style={{ flex: 1, background: mode === 'chat' ? 'rgba(255,255,255,0.05)' : 'none', border: 'none', color: mode === 'chat' ? '#FFF' : '#6A7280', padding: '6px 0', fontSize: '11px', borderRadius: '16px', cursor: 'pointer', fontWeight: 500 }}>Chat Mode</button>
               <button onClick={() => setMode('action')} title="Let the assistant interact with the page" style={{ flex: 1, background: mode === 'action' ? 'rgba(0, 255, 194, 0.08)' : 'none', border: 'none', color: mode === 'action' ? '#00FFC2' : '#6A7280', padding: '6px 0', fontSize: '11px', borderRadius: '16px', cursor: 'pointer', fontWeight: 500 }}>Action Mode</button>
             </div>
 
-            {/* HISTORY OVERLAY WITH ADVANCED OPTIONS */}
+            
             {showHistory && (
               <div style={{ position: 'absolute', top: '70px', left: '18px', right: '18px', bottom: '80px', backgroundColor: '#0E0F10', zIndex: 100, display: 'flex', flexDirection: 'column', overflowY: 'auto', paddingRight: '4px' }}>
                 
@@ -685,7 +697,7 @@ export function ControlPanel() {
                           <div style={{ color: '#E5E7EB', fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', paddingRight: '20px' }}>{thread.title}</div>
                         )}
                         
-                        {/* 3-Dots Menu Button */}
+                        
                         <button 
                           className="shadowstep-icon-btn"
                           onClick={(e) => { e.stopPropagation(); setActiveOptionsMenu(activeOptionsMenu === thread.id ? null : thread.id); }}
@@ -702,7 +714,7 @@ export function ControlPanel() {
                         )}
                       </div>
 
-                      {/* Dropdown Options Box */}
+                      
                       {activeOptionsMenu === thread.id && (
                         <div style={{ position: 'absolute', top: '28px', right: '10px', backgroundColor: '#1A1C1E', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', boxShadow: '0 4px 12px rgba(0,0,0,0.5)', zIndex: 110, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                           <button className="shadowstep-popup-btn" onClick={(e) => { e.stopPropagation(); setEditingThreadId(thread.id); setEditingTitle(thread.title); setActiveOptionsMenu(null); }}>Rename</button>
@@ -716,7 +728,7 @@ export function ControlPanel() {
               </div>
             )}
 
-            {/* STREAM MAIN CONTAINER */}
+            
             <div className="shadowstep-chat-stream" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '16px', paddingRight: '6px', textAlign: 'left' }}>
               <style>{`.shadowstep-chat-stream::-webkit-scrollbar { width: 4px; } .shadowstep-chat-stream::-webkit-scrollbar-track { background: transparent; } .shadowstep-chat-stream::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; } .shadowstep-chat-stream::-webkit-scrollbar-thumb:hover { background: rgba(0, 255, 194, 0.3); }`}</style>
               
@@ -767,7 +779,7 @@ export function ControlPanel() {
               <div ref={logEndRef} />
             </div>
 
-            {/* Context Attachment Indicator Scroll Row */}
+            
             {attachedContexts.length > 0 && (
               <div className="shadowstep-scroll-dock" style={{ marginBottom: '10px', display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '6px', scrollbarWidth: 'none', msOverflowStyle: 'none', width: '100%' }}>
                 <style>{`.shadowstep-scroll-dock::-webkit-scrollbar { display: none; }`}</style>
@@ -788,7 +800,7 @@ export function ControlPanel() {
               </div>
             )}
 
-            {/* HIGH Z-INDEX CHAT INPUT TO SHOW ATTACHMENT MENU UNCLIPPED */}
+            
             <div style={{ position: 'relative', zIndex: 50, flexShrink: 0, backgroundColor: 'rgba(255, 255, 255, 0.03)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.06)', display: 'flex', alignItems: 'flex-end', padding: '6px 10px' }}>
               
               {showAttachmentMenu && (

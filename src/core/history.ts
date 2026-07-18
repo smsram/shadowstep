@@ -1,4 +1,15 @@
-// src/core/history.ts
+/**
+ * @file history.ts
+ * @description Manages local task history and session logs for the ShadowStep extension.
+ * Responsible for loading, saving, renaming, and clearing chat threads in a rate-limit resilient manner.
+ *
+ * @dependencies
+ * - Chrome Extension Storage (chrome.storage.local) for persistence.
+ *
+ * @interfaces
+ * - Message: Represents a single query or agent action log.
+ * - ChatThread: Represents a full interaction session bounded to an LRU cache (100 max).
+ */
 
 export interface Message {
   id: string;
@@ -45,7 +56,6 @@ export const HistoryManager = {
       currentThread = threads[existingIndex];
       currentThread.messages = messages;
       currentThread.updatedAt = Date.now();
-      // Only auto-update the title if the user hasn't explicitly renamed it
       if (currentThread.title === 'New Task' || !currentThread.title.endsWith('(Renamed)')) {
         currentThread.title = title;
       }

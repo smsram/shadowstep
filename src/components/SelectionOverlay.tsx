@@ -1,4 +1,17 @@
-// src/components/SelectionOverlay.tsx
+/**
+ * @file SelectionOverlay.tsx
+ * @description Renders an interactive visual canvas overlay for precise spatial data extraction.
+ * Operates in either a rectangular bounding box or free-form lasso mode.
+ * 
+ * @dependencies
+ * - Preact Hooks (useState, useEffect) for state and pointer event tracking.
+ * 
+ * @interfaces
+ * - SelectionOverlayProps: Defines mode toggles and callbacks for extraction completion/cancellation.
+ * 
+ * @state
+ * - isDrawing, startPos, currentPos, lassoPoints
+ */
 import { useState, useEffect } from 'preact/hooks';
 
 interface SelectionOverlayProps {
@@ -13,7 +26,6 @@ export function SelectionOverlay({ mode, onComplete, onCancel }: SelectionOverla
   const [currentPos, setCurrentPos] = useState({ x: 0, y: 0 });
   const [lassoPoints, setLassoPoints] = useState<{x: number, y: number}[]>([]);
 
-  // Prevent background scrolling while the overlay canvas is active
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
@@ -54,7 +66,6 @@ export function SelectionOverlay({ mode, onComplete, onCancel }: SelectionOverla
       maxY = Math.max(...lassoPoints.map(p => p.y));
     }
 
-    // Abort if selection is too small (e.g., an accidental click)
     if (maxX - minX < 10 || maxY - minY < 10) {
       onCancel();
       return;
@@ -77,7 +88,7 @@ export function SelectionOverlay({ mode, onComplete, onCancel }: SelectionOverla
   };
 
   const extractContentStrictly = (minX: number, minY: number, maxX: number, maxY: number, polygon: {x: number, y: number}[]) => {
-    // We use a TreeWalker to grab EXACT leaf text nodes, bypassing large wrapper divs completely
+    // TreeWalker to grab EXACT leaf text nodes, bypassing large wrapper divs
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
     let node;
     const extractedLines: string[] = [];
@@ -90,14 +101,12 @@ export function SelectionOverlay({ mode, onComplete, onCancel }: SelectionOverla
       const parent = node.parentElement;
       if (!parent) continue;
 
-      // Ignore scripts, styles, and hidden formatting elements
       const tagName = parent.tagName.toLowerCase();
       if (tagName === 'script' || tagName === 'style' || tagName === 'noscript') continue;
 
       const style = window.getComputedStyle(parent);
       if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') continue;
 
-      // Calculate the physical screen coordinates of the raw text alone
       const range = document.createRange();
       range.selectNodeContents(node);
       const rects = range.getClientRects();
@@ -126,7 +135,6 @@ export function SelectionOverlay({ mode, onComplete, onCancel }: SelectionOverla
         }
       }
 
-      // Append text cleanly, ignoring structural DOM wrappers
       if (isOverlapping) {
          if (!seenTexts.has(text)) {
            seenTexts.add(text);
@@ -151,7 +159,6 @@ export function SelectionOverlay({ mode, onComplete, onCancel }: SelectionOverla
         zIndex: 2147483645, touchAction: 'none'
       }}
     >
-      {/* Box Drawing Render */}
       {isDrawing && mode === 'box' && (
         <div style={{
           position: 'absolute',
@@ -164,7 +171,6 @@ export function SelectionOverlay({ mode, onComplete, onCancel }: SelectionOverla
         }} />
       )}
 
-      {/* Free Form Lasso Render */}
       {isDrawing && mode === 'lasso' && lassoPoints.length > 0 && (
         <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
           <polyline
@@ -174,7 +180,6 @@ export function SelectionOverlay({ mode, onComplete, onCancel }: SelectionOverla
         </svg>
       )}
 
-      {/* Helper Context HUD */}
       {!isDrawing && (
         <div style={{
           position: 'absolute', top: '20px', left: '50%', transform: 'translateX(-50%)',

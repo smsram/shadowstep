@@ -1,5 +1,12 @@
-// src/background/background.ts
-// ⚠️ NO PREACT OR DOM IMPORTS ALLOWED HERE
+/**
+ * @file background.ts
+ * @description Background service worker for ShadowStep.
+ * Handles lifecycle events, context menu registration, extension wake pings, and message routing.
+ * 
+ * @dependencies
+ * - Chrome Extension API (chrome.runtime, chrome.contextMenus, chrome.action, chrome.tabs).
+ */
+// NO PREACT OR DOM IMPORTS ALLOWED HERE
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log("ShadowStep Agent Background Worker Initialized securely.");
@@ -14,7 +21,6 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-// Route Context Menu clicks to the active tab
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "shadowstep-send" && tab?.id) {
     chrome.tabs.sendMessage(tab.id, { 
@@ -26,7 +32,6 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   }
 });
 
-// Wake up the extension when the user clicks the browser extension icon
 chrome.action.onClicked.addListener((tab) => {
   if (tab?.id) {
     chrome.tabs.sendMessage(tab.id, { type: 'WAKE_UP_EXTENSION' }).catch((err) => {
@@ -35,7 +40,6 @@ chrome.action.onClicked.addListener((tab) => {
   }
 });
 
-// Message router for panels
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.type === 'OPEN_OPTIONS') {
     try {
