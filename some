@@ -1,0 +1,636 @@
+// /src/background/index.ts
+// /src/background/index.ts
+// ⚠️ NO PREACT OR DOM IMPORTS ALLOWED HERE
+
+chrome.runtime.onInstalled.addListener(() => {
+  console.log("ShadowStep Agent Background Worker Initialized securely.");
+});
+
+// Notice the underscore on _sender to bypass the unused parameter check
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
+  if (request.type === 'PING') {
+    sendResponse({ status: 'Agent active' });
+  }
+  return true; 
+});
+
+
+// src/components/ControlPanel.tsx
+import { useState, useEffect } from 'preact/hooks';
+
+export function ControlPanel() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isConfigured, setIsConfigured] = useState(false);
+  const [apiKeys, setApiKeys] = useState<string[]>([]);
+  const [keyInput, setKeyInput] = useState('');
+  
+  const [scope, setScope] = useState('all');
+  const [logs, setLogs] = useState<string[]>(['System initialized.', 'Awaiting secure connection...']);
+  const [inputValue, setInputValue] = useState('');
+  const [activeKeyIndex, setActiveKeyIndex] = useState(0);
+
+  // 1. Initial Storage Check
+  useEffect(() => {
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      chrome.storage.local.get(['apiKeys'], (result) => {
+        if (result.apiKeys && Array.isArray(result.apiKeys) && result.apiKeys.length > 0) {
+          setApiKeys(result.apiKeys);
+          setKeyInput(result.apiKeys.join(', '));
+          setIsConfigured(true);
+          setLogs(['System initialized.', `Routing engine loaded with ${result.apiKeys.length} nodes.`]);
+        }
+      });
+    }
+  }, []);
+
+  // 2. Save and Parse Multiple Keys
+  const handleSaveKeys = () => {
+    // Split by comma, trim whitespace, remove empty entries
+    const parsedKeys = keyInput.split(',').map(k => k.trim()).filter(k => k.length > 0);
+    
+    if (parsedKeys.length > 0) {
+      if (typeof chrome !== 'undefined' && chrome.storage) {
+        chrome.storage.local.set({ apiKeys: parsedKeys }, () => {
+          setApiKeys(parsedKeys);
+          setIsConfigured(true);
+          setLogs(['System initialized.', `Routing engine loaded with ${parsedKeys.length} fallback nodes.`]);
+        });
+      } else {
+        // Local browser testing fallback
+        setApiKeys(parsedKeys);
+        setIsConfigured(true);
+      }
+    }
+  };
+
+  // 3. Fallback Execution Logic Loop
+  const handleSend = () => {
+    if (!inputValue.trim()) return;
+    
+    setLogs(prev => [...prev, `User: ${inputValue}`, `Agent: Initiating via Node [${activeKeyIndex + 1}/${apiKeys.length}]...`]);
+    setInputValue('');
+    
+    // Simulate a network execution and random rate-limit failure for visual testing
+    setTimeout(() => {
+      const willFail = apiKeys.length > 1 && Math.random() > 0.5; // 50% chance to fail if >1 key exists
+      
+      if (willFail) {
+        const nextIndex = (activeKeyIndex + 1) % apiKeys.length;
+        setActiveKeyIndex(nextIndex);
+        setLogs(prev => [...prev, `System: HTTP 429 Rate Limit hit.`, `Agent: Auto-switching to fallback Node [${nextIndex + 1}/${apiKeys.length}]...`, `Agent: Analyzing viewport coordinates...`]);
+      } else {
+        setLogs(prev => [...prev, 'Agent: Viewport split verification complete.', 'System: Instruction executed successfully.']);
+      }
+    }, 1200);
+  };
+
+  return (
+    <div style={{ fontFamily: 'system-ui, -apple-system, sans-serif', color: '#F5F6F7' }}>
+      
+      {/* FLOATING TRIGGER ICON */}
+      {!isOpen && (
+        <div 
+          onClick={() => setIsOpen(true)}
+          style={{
+            position: 'fixed',
+            right: 0,
+            top: '45%',
+            transform: 'translateY(-50%)',
+            width: '38px',
+            height: '48px',
+            backgroundColor: 'rgba(26, 28, 30, 0.85)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRight: 'none',
+            borderRadius: '10px 0 0 10px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '-4px 4px 16px rgba(0, 0, 0, 0.3)',
+            transition: 'all 0.2s ease',
+            zIndex: 999999
+          }}
+        >
+          <span style={{ fontSize: '18px', filter: 'drop-shadow(0 0 4px #00FFC2)' }}>🤖</span>
+        </div>
+      )}
+
+      {/* EXPANDED GLASSMORPHIC INTERFACE */}
+      <div 
+        style={{
+          position: 'fixed',
+          right: isOpen ? '0px' : '-380px',
+          top: '0px',
+          width: '360px',
+          height: '100vh',
+          backgroundColor: 'rgba(18, 19, 20, 0.85)',
+          backdropFilter: 'blur(20px)',
+          borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
+          boxShadow: '-10px 0 40px rgba(0, 0, 0, 0.5)',
+          transition: 'right 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+          display: 'flex',
+          flexDirection: 'column',
+          boxSizing: 'border-box',
+          padding: '24px',
+          zIndex: 999999
+        }}
+      >
+        {/* HEADER */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 600, letterSpacing: '-0.5px' }}>
+            ShadowStep <span style={{ color: '#00FFC2', fontWeight: 300 }}>Agent</span>
+          </h2>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            {isConfigured && (
+              <button 
+                onClick={() => setIsConfigured(false)}
+                style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '14px' }}
+                title="Configure Keys"
+              >
+                ⚙️
+              </button>
+            )}
+            <button 
+              onClick={() => setIsOpen(false)}
+              style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '16px' }}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        {/* VIEW 1: API CONFIGURATION SCREEN */}
+        {!isConfigured ? (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <h3 style={{ fontSize: '14px', margin: '0 0 8px', color: '#FFF' }}>Security Authorization</h3>
+            <p style={{ fontSize: '12px', color: '#888', margin: '0 0 20px', lineHeight: '1.5' }}>
+              Enter your Groq or SiliconFlow API keys to activate the agent. Separate multiple keys with commas for automatic failover.
+            </p>
+            
+            <textarea
+              placeholder="gsk_12345..., sk-fast-6789..."
+              value={keyInput}
+              onInput={(e) => setKeyInput((e.target as HTMLTextAreaElement).value)}
+              style={{
+                width: '100%',
+                height: '100px',
+                backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '8px',
+                padding: '12px',
+                color: '#FFF',
+                fontSize: '12px',
+                fontFamily: 'monospace',
+                outline: 'none',
+                resize: 'none',
+                marginBottom: '16px',
+                boxSizing: 'border-box'
+              }}
+            />
+            
+            <button
+              onClick={handleSaveKeys}
+              style={{
+                width: '100%',
+                backgroundColor: '#00FFC2',
+                color: '#121314',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '12px 0',
+                fontWeight: 600,
+                fontSize: '13px',
+                cursor: 'pointer',
+                boxShadow: '0 4px 20px rgba(0, 255, 194, 0.15)'
+              }}
+            >
+              Initialize Engine
+            </button>
+          </div>
+        ) : (
+          
+        /* VIEW 2: ACTIVE AGENT TERMINAL */
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            
+            {/* SCOPE SELECTOR */}
+            <div style={{ 
+              display: 'flex', 
+              backgroundColor: 'rgba(255, 255, 255, 0.03)', 
+              borderRadius: '8px', 
+              padding: '3px', 
+              border: '1px solid rgba(255, 255, 255, 0.04)',
+              marginBottom: '16px'
+            }}>
+              {['all', 'domain', 'session'].map((item) => (
+                <button
+                  key={item}
+                  onClick={() => setScope(item)}
+                  style={{
+                    flex: 1,
+                    background: scope === item ? 'rgba(255, 255, 255, 0.08)' : 'none',
+                    border: 'none',
+                    color: scope === item ? '#FFF' : '#888',
+                    padding: '6px 0',
+                    fontSize: '11px',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  {item === 'all' ? 'All Pages' : item === 'domain' ? 'This Site' : 'Once'}
+                </button>
+              ))}
+            </div>
+
+            {/* LIVE ACTIVITY LOG */}
+            <div style={{
+              flex: 1,
+              backgroundColor: 'rgba(255, 255, 255, 0.02)',
+              border: '1px solid rgba(255, 255, 255, 0.05)',
+              borderRadius: '12px',
+              padding: '16px',
+              overflowY: 'auto',
+              fontSize: '12px',
+              lineHeight: '1.6',
+              color: '#C9CDD0',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              marginBottom: '20px'
+            }}>
+              {logs.map((log, i) => (
+                <div key={i} style={{ 
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.02)', 
+                  paddingBottom: '4px',
+                  color: log.startsWith('User:') ? '#888' : log.startsWith('System') ? '#FFB703' : '#00FFC2'
+                }}>
+                  {log}
+                </div>
+              ))}
+            </div>
+
+            {/* INSTRUCTION INPUT */}
+            <div style={{ position: 'relative' }}>
+              <input 
+                type="text" 
+                placeholder="Instruct agent..." 
+                value={inputValue}
+                onInput={(e) => setInputValue((e.target as HTMLInputElement).value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                style={{
+                  width: '100%',
+                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '8px',
+                  padding: '12px 40px 12px 12px',
+                  boxSizing: 'border-box',
+                  color: '#FFF',
+                  fontSize: '13px',
+                  outline: 'none',
+                  transition: 'border-color 0.2s ease'
+                }}
+                onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(0, 255, 194, 0.4)'}
+                onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(255, 255, 255, 0.08)'}
+              />
+              <button 
+                onClick={handleSend}
+                style={{
+                  position: 'absolute',
+                  right: '8px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  color: '#00FFC2',
+                  fontSize: '16px',
+                  cursor: 'pointer'
+                }}
+              >
+                ↵
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+// src/content/index.ts
+// /src/content/index.ts
+import { h, render } from 'preact';
+import { ControlPanel } from '../components/ControlPanel';
+
+function initShadowStep() {
+  if (document.getElementById('shadowstep-agent-frame')) return;
+
+  const host = document.createElement('div');
+  host.id = 'shadowstep-agent-frame';
+  host.style.cssText = 'position: fixed; top: 0; right: 0; z-index: 2147483647; pointer-events: none;';
+  document.documentElement.appendChild(host);
+
+  const shadowRoot = host.attachShadow({ mode: 'closed' });
+  const renderContainer = document.createElement('div');
+  renderContainer.style.pointerEvents = 'auto';
+  shadowRoot.appendChild(renderContainer);
+
+  const styleEl = document.createElement('style');
+  styleEl.textContent = `
+    * { box-sizing: border-box; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.01); }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+  `;
+  shadowRoot.appendChild(styleEl);
+
+  render(h(ControlPanel, {}), renderContainer);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initShadowStep);
+} else {
+  initShadowStep();
+}
+
+
+// src/styles -> empty currently
+
+
+// src/app.tsx
+import { useState, useEffect } from 'preact/hooks';
+
+interface StorageResult {
+  apiKey?: string;
+}
+
+export function App() {
+  const [apiKey, setApiKey] = useState('');
+  const [savedStatus, setSavedStatus] = useState('');
+
+  // Combined & cleaned into a single type-safe hook
+  useEffect(() => {
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      chrome.storage.local.get(['apiKey'], (result: StorageResult) => {
+        if (result && typeof result.apiKey === 'string') {
+          setApiKey(result.apiKey);
+        }
+      });
+    }
+  }, []);
+
+  const saveConfiguration = () => {
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      chrome.storage.local.set({ apiKey }, () => {
+        setSavedStatus('Configuration Saved ✔');
+        setTimeout(() => setSavedStatus(''), 2000);
+      });
+    } else {
+      setSavedStatus('Local storage missing');
+    }
+  };
+
+  return (
+    <div style={{
+      fontFamily: 'system-ui, sans-serif',
+      backgroundColor: '#121314',
+      color: '#F5F6F7',
+      minHeight: '100vh',
+      padding: '40px 20px',
+      boxSizing: 'border-box',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center'
+    }}>
+      <div style={{
+        width: '100%',
+        maxWidth: '480px',
+        backgroundColor: 'rgba(26, 28, 30, 0.45)',
+        backdropFilter: 'blur(16px)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        borderRadius: '16px',
+        padding: '32px',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
+      }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 600, margin: '0 0 8px 0', letterSpacing: '-0.5px' }}>
+          ShadowStep <span style={{ color: '#00FFC2', fontWeight: 300 }}>Control Desk</span>
+        </h1>
+        <p style={{ color: '#888', fontSize: '13px', margin: '0 0 32px 0' }}>
+          Configure core routing engine parameters and security metrics.
+        </p>
+
+        <div style={{ marginBottom: '24px', width: '100%' }}>
+          <label style={{ display: 'block', fontSize: '11px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+            ENGINE LLM API KEY
+          </label>
+          <input 
+            type="password" 
+            placeholder="sk-proj-........................"
+            value={apiKey}
+            onInput={(e) => setApiKey((e.target as HTMLInputElement).value)}
+            style={{
+              width: '100%',
+              backgroundColor: 'rgba(255, 255, 255, 0.04)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '8px',
+              padding: '12px',
+              color: '#FFF',
+              fontSize: '14px',
+              outline: 'none',
+              boxSizing: 'border-box'
+            }}
+          />
+        </div>
+
+        <button
+          onClick={saveConfiguration}
+          style={{
+            width: '100%',
+            backgroundColor: '#00FFC2',
+            color: '#121314',
+            border: 'none',
+            borderRadius: '8px',
+            padding: '12px 0',
+            fontWeight: 600,
+            fontSize: '14px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 20px rgba(0, 255, 194, 0.15)',
+            transition: 'transform 0.1s ease'
+          }}
+        >
+          Save Core Metrics
+        </button>
+
+        {savedStatus && (
+          <div style={{ textAlign: 'center', fontSize: '12px', color: '#00FFC2', marginTop: '16px' }}>
+            {savedStatus}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+// src/main.tsx
+import { render, h } from 'preact';
+import { App } from './app.tsx';
+
+// Mounts our extension dashboard directly into the native options window framework
+const root = document.getElementById('app');
+if (root) {
+  render(h(App, {}), root);
+}
+
+
+// mainfest.json
+{
+  "manifest_version": 3,
+  "name": "ShadowStep",
+  "version": "1.0.0",
+  "description": "Stealth AI Browser Agent & High-Privilege Operator",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "scripting",
+    "storage",
+    "unlimitedStorage",
+    "history"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "src/background/index.ts",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/index.ts"],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_popup": "index.html"
+  }
+}
+
+
+// package.json
+{
+  "name": "shadowstep",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "preact": "^10.29.3"
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.0.0-beta.33",
+    "@preact/preset-vite": "^2.10.5",
+    "@types/chrome": "^0.2.2",
+    "@types/node": "^24.13.2",
+    "autoprefixer": "^10.5.2",
+    "postcss": "^8.5.17",
+    "tailwindcss": "^4.3.2",
+    "typescript": "~6.0.2",
+    "vite": "^8.1.1"
+  }
+}
+
+
+// tsconfig.app.json
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "es2023",
+    "module": "esnext",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["vite/client", "chrome"],
+    "allowArbitraryExtensions": true,
+    "skipLibCheck": true,
+    "paths": {
+      "react": ["./node_modules/preact/compat/"],
+      "react-dom": ["./node_modules/preact/compat/"]
+    },
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    
+    /* Modern Preact JSX Configuration */
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+
+    /* Linting */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src", "src/**/*.ts", "src/**/*.tsx"]
+}
+
+
+// tsconfig.json
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}
+
+
+// tsconfig.node.json
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "module": "nodenext",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["vite.config.ts"]
+}
+
+
+// vite.config.ts
+import { defineConfig } from 'vite';
+import { crx } from '@crxjs/vite-plugin';
+import manifest from './manifest.json' with { type: 'json' };
+
+export default defineConfig({
+  plugins: [
+    crx({ manifest })
+  ],
+  server: {
+    hmr: false
+  }
+});
+
+
+// public/icon.svg (svg icon of the project)

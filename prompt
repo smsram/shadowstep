@@ -1,0 +1,5 @@
+fix these,
+1. getting more space between lines and can identify more for heading and passage,
+2. rendering heading for code block when placing comment and avoid formatting anything in code block,
+3. three hipens can't rendering as line in some places like after the list if present these then can't rendering,
+4. make to render table with scroll x if needed but don't make whole single line cell for more content,
