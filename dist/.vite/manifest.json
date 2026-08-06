@@ -1,0 +1,40 @@
+{
+  "../../../../../@crx/manifest": {
+    "file": "assets/crx-manifest.js-B4S5_ANU.js",
+    "name": "crx-manifest.js",
+    "src": "../../../../../@crx/manifest",
+    "isEntry": true
+  },
+  "_content.ts-loader-_h7t7PoV.js": {
+    "file": "assets/content.ts-loader-_h7t7PoV.js",
+    "src": "_content.ts-loader-_h7t7PoV.js"
+  },
+  "_jsxRuntime.module-CgbSdf34.js": {
+    "file": "assets/jsxRuntime.module-CgbSdf34.js",
+    "name": "jsxRuntime.module"
+  },
+  "index.html": {
+    "file": "assets/index.html-U6elrfUL.js",
+    "name": "index.html",
+    "src": "index.html",
+    "isEntry": true,
+    "imports": [
+      "_jsxRuntime.module-CgbSdf34.js"
+    ]
+  },
+  "src/background/background.ts": {
+    "file": "assets/background.ts-DnLVsi05.js",
+    "name": "background.ts",
+    "src": "src/background/background.ts",
+    "isEntry": true
+  },
+  "src/content/content.ts": {
+    "file": "assets/content.ts-Don6P-5F.js",
+    "name": "content.ts",
+    "src": "src/content/content.ts",
+    "isEntry": true,
+    "imports": [
+      "_jsxRuntime.module-CgbSdf34.js"
+    ]
+  }
+}
