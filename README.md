@@ -4,7 +4,7 @@
 
 Repository: [github.com/smsram/shadowstep](https://github.com/smsram/shadowstep)
 
-[![Install from Microsoft Edge Add-ons](https://img.shields.io/badge/Microsoft%20Edge%20Add-ons-Install%20Now-blue?logo=microsoft-edge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/shadowstep/iehelgmcldkldibjabnngfgfehegomgh)
+[![Install from Microsoft Edge Add-ons](https://img.shields.io/badge/Microsoft%20Edge%20Add-ons-Install%20Now-0078D4)](https://microsoftedge.microsoft.com/addons/detail/shadowstep/iehelgmcldkldibjabnngfgfehegomgh)
 
 ---
 
