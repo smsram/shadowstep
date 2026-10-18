@@ -67,13 +67,60 @@ export const AgentTools = [
         required: ["ms"]
       }
     }
+  },
+  {
+    type: "function",
+    function: {
+      name: "record_observation",
+      description: "Permanently records intermediate target findings, milestones, or values into the scratchpad memory ledger. Use before navigating away or clearing fields.",
+      parameters: {
+        type: "object",
+        properties: {
+          data: {
+            type: "string",
+            description: "The intermediate finding or data to preserve across multi-step flows."
+          }
+        },
+        required: ["data"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "scroll_page",
+      description: "Scrolls the page up or down to reveal more content or navigate long documents. After scrolling, scan_viewport must be called to update element IDs.",
+      parameters: {
+        type: "object",
+        properties: {
+          direction: { type: "string", enum: ["up", "down"], description: "Direction to scroll: 'down' or 'up'." },
+          amount: { type: "number", description: "Pixels to scroll (default: 500)." }
+        },
+        required: ["direction"]
+      }
+    }
   }
 ];
 
 export const ToolExecutors = {
+  record_observation: async (args: { data: string }, log: (msg: string) => void) => {
+    log(`[OBSERVE] ${args.data}`);
+    return `Observation logged: "${args.data}". Intermediate findings preserved in scratchpad.`;
+  },
+
+  scroll_page: async (args: { direction: 'up' | 'down'; amount?: number }, log: (msg: string) => void) => {
+    const amount = Number(args.amount) || 500;
+    const dy = args.direction === 'up' ? -amount : amount;
+    window.scrollBy({ top: dy, behavior: 'smooth' });
+    log(`[ACT] Scrolled ${args.direction} by ${amount}px.`);
+    await new Promise(r => setTimeout(r, 300));
+    return `Scrolled ${args.direction} by ${amount}px. Frame layout updated. Call scan_viewport to map newly visible targets.`;
+  },
+
   read_page_content: async (_args: any, log: (msg: string) => void) => {
     log(`[DOM] Extracting page document context for analysis...`);
-    return document.body.innerText.substring(0, 8000);
+    const docText = document.body ? document.body.innerText : document.documentElement.innerText;
+    return docText.substring(0, 8000);
   },
 
   scan_viewport: async (_args: any, log: (msg: string) => void) => {
@@ -141,19 +188,27 @@ export const ToolExecutors = {
         await new Promise<void>((resolve) => {
           let lastMutationTime = Date.now();
           let checkCount = 0;
+          let observer: MutationObserver | null = null;
           
-          const observer = new MutationObserver(() => { lastMutationTime = Date.now(); });
-          observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+          try {
+            const target = document.body || document.documentElement;
+            if (target) {
+              observer = new MutationObserver(() => { lastMutationTime = Date.now(); });
+              observer.observe(target, { childList: true, subtree: true, attributes: true });
+            }
+          } catch {}
 
           const interval = setInterval(() => {
             const timeSinceLastMutation = Date.now() - lastMutationTime;
             checkCount++;
-            if ((document.readyState === 'complete' && timeSinceLastMutation > 600) || checkCount > 25) {
+            if ((document.readyState === 'complete' && timeSinceLastMutation > 500) || checkCount > 20) {
               clearInterval(interval);
-              observer.disconnect();
+              if (observer) {
+                try { observer.disconnect(); } catch {}
+              }
               resolve();
             }
-          }, 200);
+          }, 150);
         });
 
         log(`[SYS] Environment verified stable. Frame layout painted completely.`);

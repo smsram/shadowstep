@@ -28,21 +28,37 @@ const injectUI = () => {
   
   document.documentElement.appendChild(hostContainer);
   
-  // 2. Attach a closed/open Shadow Root to fully isolate the styles
+  // 2. Attach an open Shadow Root to fully isolate the styles
   const shadowRoot = hostContainer.attachShadow({ mode: 'open' });
   
-  // 3. Create an internal wrapper inside the shadow boundary for mounting Preact
+  // 3. Comprehensive CSS reset scoped strictly inside the shadow root (zero host bleed)
+  const resetStyle = document.createElement('style');
+  resetStyle.textContent = `
+    :host, #shadowstep-isolated-container, .shadowstep-panel-root {
+      all: initial !important;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+      font-size: 14px !important;
+      line-height: 1.5 !important;
+      box-sizing: border-box !important;
+      color-scheme: dark;
+      display: block !important;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+  `;
+  shadowRoot.appendChild(resetStyle);
+
+  // 4. Create an internal wrapper inside the shadow boundary for mounting Preact
   const innerUiWrapper = document.createElement('div');
   innerUiWrapper.id = 'shadowstep-isolated-container';
   
-  // Apply foundational isolation baselines directly inside the shadow container
-  innerUiWrapper.style.all = 'initial'; // Reset any inheritances completely
-  innerUiWrapper.style.fontFamily = 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-  innerUiWrapper.style.display = 'block';
-  
   shadowRoot.appendChild(innerUiWrapper);
   
-  // 4. Render the companion layout inside the isolated shadow root container
+  // 5. Render the companion layout inside the isolated shadow root container
   render(h(ControlPanel, null), innerUiWrapper);
 };
 
