@@ -20,7 +20,7 @@ To fulfill its single purpose as a browsing companion, the extension interacts w
 * **Sovereignty:** This processing is highly volatile and ephemeral. The raw page content is utilized strictly to formulate context prompt structures dispatched directly to your configured AI node cluster. It is never permanently saved or cached on any device outside your active runtime environment.
 
 ### B. LLM Credentials (API Keys)
-* **How it works:** To connect with computing infrastructure clusters (like Groq or Cerebras), you manually input your own individual API keys into the Control Hub dashboard.
+* **How it works:** To connect with computing infrastructure clusters (like Google Gemini, Groq, or Cloudflare Workers AI), you manually input your own individual API keys into the Control Hub dashboard.
 * **Sovereignty:** These credential strings are saved purely on your machine inside the browser's protected local sandbox environment using the `chrome.storage.local` API. They are never transmitted to us or any unauthorized third party. They are only sent directly to the official endpoints of the respective infrastructure provider during active query dispatches.
 
 ### C. Local Activity Logs (Session History)
@@ -28,9 +28,9 @@ To fulfill its single purpose as a browsing companion, the extension interacts w
 * **Sovereignty:** This history log is managed entirely by a local storage mechanism resident inside your browser profile. You retain full administrative control over this data. You can manually rename individual logs, export session sequences into standard `.txt` files locally, delete specific entries, or execute a comprehensive cache wipe directly through the Control Panel user interface.
 
 ## 3. Third-Party API Node Handshakes
-When executing prompts, ShadowStep establishes direct, secure HTTPS streaming links to the official API endpoints of your selected computing node provider (Groq or Cerebras). 
+When executing prompts, ShadowStep establishes direct, secure HTTPS streaming links to the official API endpoints of your selected computing node provider (Google Gemini, Groq, or Cloudflare Workers AI). 
 * Data payloads passed during these handshakes are governed entirely by the enterprise privacy terms of those respective providers. 
-* We highly encourage you to review the developer terms of service for Groq and Cerebras regarding their individual standard text retention intervals for automated execution loops.
+* We highly encourage you to review the developer terms of service for Google Gemini, Groq, and Cloudflare regarding their individual standard text retention intervals for automated execution loops.
 
 ## 4. Source Code and Verification
 Because ShadowStep is fully open-source, its entire execution structure, packaging definitions, and CSS isolation layers are auditable by the global engineering community. You can inspect the compilation logic line-by-line at any time at our official public repository:

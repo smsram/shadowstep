@@ -16,7 +16,8 @@ export interface Message {
   role: 'user' | 'agent';
   text: string;
   logs: string[];
-  status: 'idle' | 'working' | 'done' | 'aborted';
+  status: 'idle' | 'working' | 'done' | 'step_limit' | 'aborted';
+  timestamp?: number;
 }
 
 export interface ChatThread {

@@ -305,7 +305,7 @@ export function FloatingMenu({
       `}</style>
 
       <div style={{ display: 'flex', flexDirection: isHorizontal ? 'row' : 'column', gap: '8px', opacity: isHovered && !showRemoveMenu && !isDragging ? 1 : 0, pointerEvents: isHovered && !showRemoveMenu && !isDragging ? 'auto' : 'none', transition: 'opacity 0.2s' }}>
-        <button className="shadowstep-round-btn" onClick={onOpenSettings} title="Control Hub" style={{ backgroundColor: 'rgba(26, 28, 30, 0.9)', border: '1px solid rgba(255, 255, 255, 0.08)', color: '#6A7280', cursor: 'pointer' }}>
+        <button className="shadowstep-round-btn" onClick={onOpenSettings} title="Settings" style={{ backgroundColor: 'rgba(26, 28, 30, 0.9)', border: '1px solid rgba(255, 255, 255, 0.08)', color: '#6A7280', cursor: 'pointer' }}>
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         </button>
         <button className="shadowstep-round-btn" onMouseDown={onMouseDown} title="Drag to Move" style={{ backgroundColor: 'rgba(26, 28, 30, 0.9)', border: '1px solid rgba(255, 255, 255, 0.08)', color: '#6A7280', cursor: 'grab' }}>
@@ -328,7 +328,7 @@ export function FloatingMenu({
           borderTop, borderBottom, borderLeft, borderRight,
           cursor: 'pointer' 
         }}>
-          <div style={{ width: '16px', height: '16px', minWidth: '16px', minHeight: '16px', border: '2px solid #00FFC2', borderRadius: '50%', flexShrink: 0 }} />
+          <div style={{ width: '16px', height: '16px', minWidth: '16px', minHeight: '16px', border: '2px solid var(--primary-color, #00FFC2)', borderRadius: '50%', flexShrink: 0 }} />
         </div>
 
         {isHovered && !showRemoveMenu && !isDragging && (
@@ -344,10 +344,10 @@ export function FloatingMenu({
       </div>
 
       <div style={{ display: 'flex', flexDirection: isHorizontal ? 'row' : 'column', gap: '8px', opacity: isHovered && !showRemoveMenu && !isDragging ? 1 : 0, pointerEvents: isHovered && !showRemoveMenu && !isDragging ? 'auto' : 'none', transition: 'opacity 0.2s' }}>
-        <button className="shadowstep-round-btn" onClick={onSelectBox} title="Bounding Box Selector" style={{ backgroundColor: 'rgba(26, 28, 30, 0.9)', border: '1px solid rgba(255, 255, 255, 0.08)', color: '#00FFC2', cursor: 'pointer' }}>
+        <button className="shadowstep-round-btn" onClick={onSelectBox} title="Bounding Box Selector" style={{ backgroundColor: 'rgba(26, 28, 30, 0.9)', border: '1px solid rgba(255, 255, 255, 0.08)', color: 'var(--primary-color, #00FFC2)', cursor: 'pointer' }}>
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke-dasharray="3 3"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
         </button>
-        <button className="shadowstep-round-btn" onClick={onSelectLasso} title="Free Form Canvas Selector" style={{ backgroundColor: 'rgba(26, 28, 30, 0.9)', border: '1px solid rgba(255, 255, 255, 0.08)', color: '#00FFC2', cursor: 'pointer' }}>
+        <button className="shadowstep-round-btn" onClick={onSelectLasso} title="Free Form Canvas Selector" style={{ backgroundColor: 'rgba(26, 28, 30, 0.9)', border: '1px solid rgba(255, 255, 255, 0.08)', color: 'var(--primary-color, #00FFC2)', cursor: 'pointer' }}>
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>
         </button>
       </div>
